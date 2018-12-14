@@ -2,77 +2,80 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Network : Selectable {
+public class Network {
 
-    public Node node;
-    public Link link;
+    public bool root;
+
     public List<Network> children;
+    public Link link;
+    public Node node;
 
-    private Vector3 startPos;    
-
-    public void AddChild(Network network) {
-        children.Add(network);
-    }
-
-    public Network() {        
-        node = new Node();
-        link = new Link(this);
+    public Network(Link link, Node node) {
         children = new List<Network>();
-    }
-    public Network(Node node) {
+
+        // The root node has no link
+        if (link) {
+            this.link = link;
+            link.SetNetwork(this);
+        }
+        
         this.node = node;
-        children = new List<Network>();
+        node.SetNetwork(this);
     }
 
-    Network tempNetwork = new Network();
-    // Called per frame as a new network is created    
-    private void NewNetwork() {
-        // "Do we have funds? How long is this being?" Etc etc.
-    }
-    // Called once on mouse up if making a new network
-    private void FinishNewNetwork() {
+    /** ~~~~~~~ CREATING SUB NETWORKS ~~~~~~~ **/
+    Network tempNetwork;
+    Vector3 tempLinkScaleXY = new Vector3(0.1f, 0.1f, 1f);
+   
+    // Called by node once on start of mouse drag
+    public void CreateChildNetwork() {
+        GameObject childLinkObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Link childLink = childLinkObject.AddComponent<Link>();
 
-    }
+        GameObject childNodeObject = GameObject.CreatePrimitive(PrimitiveType.Cube);        
+        Node childNode = childNodeObject.AddComponent<Node>();
 
-    // Called while unclear if mouse is clicking or dragging
-    private void AboutToClick() {
-
-    }
-    // Called once on Mouse Up if clicking
-    private void Clicked() {
-
+        tempNetwork = new Network(childLink, childNode);
     }
 
-    // Set mouse pos for click / drag comparison
-    public override void MouseDown() {
-        startPos = Input.mousePosition;
-        makingNewNetwork = false;
+    // Called by node every frame during mouse drag
+    public void PositionNewNetwork() {
+        Vector3 position = MousePosToWorldPos();
+
+        Vector3 diff = position - node.transform.position;
+        Vector3 scale = new Vector3(
+            tempLinkScaleXY.x, 
+            tempLinkScaleXY.y,
+            Vector3.Magnitude(diff)
+        );
+        // Links point toward the parentNetwork Node
+        Quaternion rotation = Quaternion.LookRotation(-diff, Vector3.up);
+
+        // link is placed halfway between new node and current node
+        tempNetwork.link.SetTransform((position + node.transform.position) * 0.5f, scale, rotation);
+        tempNetwork.node.transform.position = position;
     }
 
-    // If static click, then open menu
-    // If drag, create new network?
-    bool makingNewNetwork = false;
-    public override void MouseHeld() {
-        // Once we've dragged enough, we're committed to making a new network
-        if (makingNewNetwork || Vector3.SqrMagnitude(Input.mousePosition - startPos) > 10) {
-            makingNewNetwork = true;
-            NewNetwork();
-        }
-        else {
-            AboutToClick();
-        }
-
+    // Temporary Network becomes an actual functioning Child Network
+    // Called by node once at the end of mouse drag
+    public void FinishChildNetwork() {
+        Debug.Log("Placed!");
+        children.Add(tempNetwork);
+        tempNetwork = null;
     }
 
-    // Called once on mouse up
-    public override void MouseUp() {
-        if (makingNewNetwork) {
-            FinishNewNetwork();
-            makingNewNetwork = false;
-        }
-        else {
-            Clicked();
-        }
+    // Convert mouse on screen to position in space
+    private Vector3 MousePosToWorldPos() {
+        // Need to provide distance to the ground in Z
+        Vector3 mousePos = new Vector3(
+            Input.mousePosition.x,
+            Input.mousePosition.y,
+            Camera.main.transform.position.y
+        );
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+
+        // Ensure for now that Y is exactly 0
+        return new Vector3(worldPos.x, 0, worldPos.z);
     }
 
 }

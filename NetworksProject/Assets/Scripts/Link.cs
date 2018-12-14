@@ -2,22 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Link : Selectable {
+public class Link : MonoBehaviour {
 
-    public Network parent;
-
-    public Link(Network parent) {
-        this.parent = parent;
+    public Network parentNetwork;
+    public void SetNetwork(Network network) {
+        parentNetwork = network;
     }
 
-    // On click
-    public override void MouseDown() {
-        Debug.Log(gameObject.name + ": \"You clicked on me! How could you!?\"");
+    public void SetTransform(Vector3 pos, Vector3 scale, Quaternion rotation) {
+        transform.position = pos;
+        transform.localScale = scale;
+        transform.rotation = rotation;
     }
-    public override void MouseHeld() {
 
-    }
-    public override void MouseUp() {
-
-    }
 }
