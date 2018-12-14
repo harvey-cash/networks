@@ -4,13 +4,49 @@ using UnityEngine;
 
 public class Node : MonoBehaviour {
 
-    public Network parentNetwork;
+    public Network network;
 	public void SetNetwork (Network network) {
-        parentNetwork = network;
+        this.network = network;
+    }
+
+    /** ~~~~~~~ COMMUNICATIONS ~~~~~~~ **/
+    /** Every so often, outposts send messages regarding
+     *  their status and surroundings.
+     */
+    bool communicate = true;
+    float commsIntervalSeconds = 3f;
+    Vector3 messageScale = new Vector3(0.5f, 0.5f, 0.5f);
+
+    // Called by Network on being placed
+    public void BeginComms() {
+        StartCoroutine(CommsLoop());
+    }
+
+    // Beware of while loops, they can completely crash Unity.
+    private IEnumerator CommsLoop() {
+        while(communicate) {
+            SendMessageUp();
+            yield return new WaitForSeconds(commsIntervalSeconds);
+        }        
+    }
+
+    // Create a message object which moves towards the parentNetwork's node
+    // Until it gets close enough to be received
+    // Called during the CommsLoop
+    private void SendMessageUp() {
+        Debug.Log("hello!?");
+
+        GameObject messageObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        messageObject.transform.position = gameObject.transform.position;
+        messageObject.transform.localScale = messageScale;
+        messageObject.name = "Message";
+
+        Message message = messageObject.AddComponent<Message>();
+        message.SetDestination(network.parentNetwork, network.parentNetwork.node.transform.position);
     }
 
     /** ~~~~~~~ PLAYER INTERACTION ~~~~~~~ **/
-    /** 
+    /** Players can click and inspect nodes and whatnot
      */
 
     // Zoom in and show more detail, etc etc.
@@ -24,7 +60,7 @@ public class Node : MonoBehaviour {
     // Complete new link and whatnot
     // Called once on mouse up, if dragged
     private void NewNetwork() {
-        parentNetwork.FinishChildNetwork();
+        network.FinishChildNetwork();
     }
 
     /** ~~~~~~~ MOUSE INTERACTION ~~~~~~~ **/
@@ -64,11 +100,11 @@ public class Node : MonoBehaviour {
             // Gets called once
             if (!beingDragged) {
                 beingDragged = true;
-                parentNetwork.CreateChildNetwork();
+                network.CreateChildNetwork();
             }
 
             // Called every frame from now on until MouseUp
-            parentNetwork.PositionNewNetwork();            
+            network.PositionNewNetwork();            
         }
     }
 
