@@ -89,7 +89,7 @@ public class Network {
 
     // Check all the criteria of becoming a sub network!
     public bool CanBePlaced() {
-        return node.CanBePlaced();
+        return node.CanBePlaced() && Player.cash >= node.CalculateCost(parentNetwork.node);
     }
 
     // This is a tempNetwork! Kill it dead!
@@ -157,7 +157,8 @@ public class Network {
             tempNetwork.Cancel();
         }
         else {
-            children.Add(tempNetwork);            
+            children.Add(tempNetwork);
+            Player.SumCash(-tempNetwork.node.CalculateCost(node));
             Root.root.DispatchBuilder(tempNetwork);
         }
         tempNetwork = null;

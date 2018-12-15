@@ -40,6 +40,7 @@ public class Node : Viewable {
 
         if (success) {
             gameObject.GetComponent<Renderer>().material.color = Color.white;
+            StartCoroutine(MakeCash());
 
             // We don't need to be able to ghostify the root node, but
             // we do need to ghostify all else!
@@ -50,6 +51,18 @@ public class Node : Viewable {
         else {
             throw new System.Exception("Node Place() fucked up!");
         }
+    }
+
+    private IEnumerator MakeCash() {
+        while(communicate) {
+            yield return new WaitForSeconds(Settings.cashTime);
+            Player.SumCash(Settings.cashPerTime);
+        }        
+    }
+
+    public int CalculateCost(Node parentNode) {
+        int linkLength = (int)Mathf.Ceil(Vector3.Magnitude(transform.position - parentNode.transform.position));
+        return Settings.townCost + (Settings.linkPricePerUnit * linkLength);
     }
 
     // Called on destruction / movement?

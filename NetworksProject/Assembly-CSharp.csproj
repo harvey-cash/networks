@@ -73,6 +73,7 @@
     <Compile Include="Assets\Scripts\Networks\Network.cs" />
     <Compile Include="Assets\Scripts\Networks\Node.cs" />
     <Compile Include="Assets\Scripts\Networks\Root.cs" />
+    <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Settings.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>D:/GitRepos/networks/NetworksProject/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
