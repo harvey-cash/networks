@@ -29,11 +29,6 @@ public class Node : Viewable {
     
     // Called by own network on its creation
     public void Place() {
-        // When placed, we don't actually know it's there until
-        // we receive a Message (and Ghost) back, so it's invisible!
-        if (!network.root) {
-            gameObject.GetComponent<Renderer>().enabled = false;
-        }
 
         Vector3 position = Map.SnapToGrid(gameObject.transform.position);
         bool success = Map.SetWorldCells(
@@ -103,9 +98,14 @@ public class Node : Viewable {
 
     // Called once when tempNetwork is first created
     public void Created() {
+        
         gameObject.layer = LayerMask.NameToLayer("OnTop");
         gameObject.GetComponent<Renderer>().material = (Material)Resources.Load("Materials/PlacedNode");
         gameObject.transform.localScale = scale;
+
+        // When placed, we don't actually know it's there until
+        // we receive a Message (and Ghost) back, so it's invisible!
+        gameObject.GetComponent<Renderer>().enabled = false;
     }
 
     // Called every frame by Network during mouse drag
@@ -188,7 +188,7 @@ public class Node : Viewable {
     // Complete new link and whatnot
     // Called once on mouse up, if dragged
     private void NewNetwork() {
-        network.FinishChildNetwork();
+        network.PlaceChildNetwork();
     }
 
     // Called on Cancel by network

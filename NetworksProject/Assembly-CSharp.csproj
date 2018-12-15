@@ -68,6 +68,7 @@
     <Compile Include="Assets\Scripts\Messaging\Message.cs" />
     <Compile Include="Assets\Scripts\Messaging\Messenger.cs" />
     <Compile Include="Assets\Scripts\Messaging\Viewable.cs" />
+    <Compile Include="Assets\Scripts\Networks\Builder.cs" />
     <Compile Include="Assets\Scripts\Networks\Link.cs" />
     <Compile Include="Assets\Scripts\Networks\Network.cs" />
     <Compile Include="Assets\Scripts\Networks\Node.cs" />

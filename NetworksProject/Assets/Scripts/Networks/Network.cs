@@ -65,9 +65,10 @@ public class Network {
     /** Probably plenty of things to be doing on creation, right?
      *  Start sending messages, for instance.
      */
-
-    // called once on creation
-    public void Placed() {
+    
+    // A Network is only complete when a builder arrives!
+    // Called once by builder on arrival
+    public void CompleteNode() {
         // Take up the available grid spaces
         node.Place();
 
@@ -147,15 +148,17 @@ public class Network {
         tempNetwork.node.Placing(position);
     }
 
-    // Temporary Network becomes an actual functioning Child Network
+    // Temporary Network is planned, and a builder dispatched
     // Called by node once at the end of mouse drag
-    public void FinishChildNetwork() {
+    // Network only actually becomes functioning once the Node
+    // is completed
+    public void PlaceChildNetwork() {
         if (!tempNetwork.CanBePlaced()) {
             tempNetwork.Cancel();
         }
         else {
-            children.Add(tempNetwork);
-            tempNetwork.Placed();
+            children.Add(tempNetwork);            
+            Root.root.DispatchBuilder(tempNetwork);
         }
         tempNetwork = null;
     }

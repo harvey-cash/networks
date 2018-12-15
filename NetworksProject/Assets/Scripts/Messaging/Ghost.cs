@@ -28,7 +28,7 @@ public class Ghost : MonoBehaviour {
         GetComponent<Renderer>().material = (Material)Resources.Load("Materials/Ghost");
 
         gameObject.name = "Ghost of " + gameObject.name;
-        GetComponent<Renderer>().enabled = false;        
+        GetComponent<Renderer>().enabled = false;
     }
 
     // Called by the root network on message arrival
