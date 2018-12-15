@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Node : MonoBehaviour {
+public class Node : Viewable {
 
     public Network network;
 	public void SetNetwork (Network network) {
@@ -29,6 +29,12 @@ public class Node : MonoBehaviour {
     
     // Called by own network on its creation
     public void Place() {
+        // When placed, we don't actually know it's there until
+        // we receive a Message (and Ghost) back, so it's invisible!
+        if (!network.root) {
+            gameObject.GetComponent<Renderer>().enabled = false;
+        }
+
         Vector3 position = Map.SnapToGrid(gameObject.transform.position);
         bool success = Map.SetWorldCells(
             gameObject.transform.position,
@@ -47,7 +53,7 @@ public class Node : MonoBehaviour {
             }
         }
         else {
-            throw new System.Exception("Node Place fucked up!");
+            throw new System.Exception("Node Place() fucked up!");
         }
     }
 

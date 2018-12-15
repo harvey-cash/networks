@@ -64,10 +64,11 @@
     <Compile Include="Assets\Scripts\CameraControl.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Maths.cs" />
-    <Compile Include="Assets\Scripts\Networks\Ghost.cs" />
+    <Compile Include="Assets\Scripts\Messaging\Ghost.cs" />
+    <Compile Include="Assets\Scripts\Messaging\Message.cs" />
+    <Compile Include="Assets\Scripts\Messaging\Messenger.cs" />
+    <Compile Include="Assets\Scripts\Messaging\Viewable.cs" />
     <Compile Include="Assets\Scripts\Networks\Link.cs" />
-    <Compile Include="Assets\Scripts\Networks\Message.cs" />
-    <Compile Include="Assets\Scripts\Networks\Messenger.cs" />
     <Compile Include="Assets\Scripts\Networks\Network.cs" />
     <Compile Include="Assets\Scripts\Networks\Node.cs" />
     <Compile Include="Assets\Scripts\Networks\Root.cs" />

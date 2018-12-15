@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class Map {
 
-    public const int MAP_X = 100, MAP_Z = 100;
+    public const int MAP_X = 1000, MAP_Z = 1000;
     public const int DATA_LAYERS = 1;
 
     // Layer zero is "object taking up space"

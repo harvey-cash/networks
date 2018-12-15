@@ -49,11 +49,15 @@ public class Network {
         }
     }
 
-    // Called by the root ONLY!
+    // Called at the root node
+    // Ghosts can be destroyed before they are visualised
+    // Here, so tolerate missing elements in Message
     public void VisualiseMessage(Message message) {
         Ghost[] ghosts = message.ghosts;
         for (int i = 0; i < ghosts.Length; i++) {
-            ghosts[i].View();
+            if (ghosts[i]) {
+                ghosts[i].View();
+            }            
         }
     }
 
