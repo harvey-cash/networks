@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\Maths.cs" />
     <Compile Include="Assets\Scripts\Networks\Link.cs" />
     <Compile Include="Assets\Scripts\Networks\Message.cs" />
+    <Compile Include="Assets\Scripts\Networks\Messenger.cs" />
     <Compile Include="Assets\Scripts\Networks\Network.cs" />
     <Compile Include="Assets\Scripts\Networks\Node.cs" />
     <Compile Include="Assets\Scripts\Networks\Root.cs" />

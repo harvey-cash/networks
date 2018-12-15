@@ -8,7 +8,7 @@ public class Root : MonoBehaviour {
 
     private void Start() {
         Node childNode = gameObject.AddComponent<Node>();
-        network = new Network(null, null, childNode);
+        network = new Network(null, null, childNode, true);
 
         // Placed by default
         childNode.Place();

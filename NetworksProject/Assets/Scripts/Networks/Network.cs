@@ -11,12 +11,14 @@ public class Network {
     public Link link;
     public Node node;
 
-    public Network(Network parentNetwork, Link link, Node node) {
+    public Network(Network parentNetwork, Link link, Node node, bool root) {
+        this.root = root;
+
         this.parentNetwork = parentNetwork; // null for root
         children = new List<Network>();
 
         // The root node has no link
-        if (link) {
+        if (!root) {
             this.link = link;
             link.SetNetwork(this);            
         }
@@ -33,6 +35,22 @@ public class Network {
     // Called by parent Network on being placed
     public void BeginComms() {
         node.BeginComms();
+    }
+
+    // If we receive a message, we should pass it along!
+    // If we're the root, we can visualise the message data
+    // Passed up by our Node
+    public void ReceiveMessage(Message message) {
+        if (root) {
+            VisualiseMessage(message);
+        }
+        else {
+            node.SendMessageUp(message);
+        }
+    }
+
+    public void VisualiseMessage(Message message) {
+        Debug.Log("RECEIVED MESSAGE!");
     }
 
     /** ~~~~~~~ BEING CREATED ~~~~~~~ **/
@@ -82,7 +100,7 @@ public class Network {
         childNodeObject.name = "Node";
         childNode.Created();
 
-        tempNetwork = new Network(this, childLink, childNode);
+        tempNetwork = new Network(this, childLink, childNode, false);
     }
 
     // Called by node every frame during mouse drag

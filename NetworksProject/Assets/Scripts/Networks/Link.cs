@@ -9,6 +9,10 @@ public class Link : MonoBehaviour {
         parentNetwork = network;
     }
 
+    private void Start() {
+        gameObject.GetComponent<Renderer>().material = (Material)Resources.Load("Materials/MessageLink");
+    }
+
     public void SetTransform(Vector3 pos, Vector3 scale, Quaternion rotation) {
         transform.position = pos;
         transform.localScale = scale;

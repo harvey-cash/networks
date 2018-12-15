@@ -27,8 +27,6 @@ public class Node : MonoBehaviour {
         Vector3.left + Vector3.forward
     };
 
-    // private int sizeX = 1, sizeZ = 1;
-    // ~~~ All Nodes assumed to be 1*1 currently ~~~ //
     // Called by own network on its creation
     public void Place() {
         // Undo OnTop-ness
@@ -83,12 +81,13 @@ public class Node : MonoBehaviour {
             }
         }
 
+        // Highlight correctly
         if (!occupied) {
-            gameObject.GetComponent<Renderer>().material.color = Color.green;
+            gameObject.GetComponent<Renderer>().material = (Material)Resources.Load("Materials/CanPlaceNode");
             return true;
         }
         else {
-            gameObject.GetComponent<Renderer>().material.color = Color.red;
+            gameObject.GetComponent<Renderer>().material = (Material)Resources.Load("Materials/CanNotPlaceNode");
             return false;
         }
     }
@@ -96,6 +95,7 @@ public class Node : MonoBehaviour {
     // Called once when tempNetwork is first created
     public void Created() {
         gameObject.layer = LayerMask.NameToLayer("OnTop");
+        gameObject.GetComponent<Renderer>().material = (Material)Resources.Load("Materials/PlacedNode");
         gameObject.transform.localScale = scale;
     }
 
@@ -109,7 +109,7 @@ public class Node : MonoBehaviour {
      *  their status and surroundings.
      */
     bool communicate = true;
-    float commsIntervalSeconds = 3f;
+    float commsIntervalSeconds = 10f;
     Vector3 messageScale = new Vector3(0.5f, 0.5f, 0.5f);
 
     // Called by Network on being placed
@@ -125,17 +125,34 @@ public class Node : MonoBehaviour {
         }        
     }
 
-    // Create a message object which moves towards the parentNetwork's node
+    // If we receive a message, pass it up to our Network
+    public void ReceiveMessage(Message message) {
+        network.ReceiveMessage(message);
+    }
+
+    private Messenger CreateMessenger() {
+        GameObject messengerObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        messengerObject.transform.position = gameObject.transform.position;
+        messengerObject.transform.localScale = messageScale;
+        messengerObject.name = "Messenger";
+        return messengerObject.AddComponent<Messenger>();
+    }
+
+    // Create a messenger object which moves towards the parentNetwork's node
     // Until it gets close enough to be received
     // Called during the CommsLoop
     private void SendMessageUp() {
-        GameObject messageObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        messageObject.transform.position = gameObject.transform.position;
-        messageObject.transform.localScale = messageScale;
-        messageObject.name = "Message";
+        Messenger messenger = CreateMessenger();
+        messenger.CollectData();
+        messenger.SetDestination(network.parentNetwork, network.parentNetwork.node.transform.position);
+    }
 
-        Message message = messageObject.AddComponent<Message>();
-        message.SetDestination(network.parentNetwork, network.parentNetwork.node.transform.position);
+    // publicly accessible version, for
+    // passing along existing messages
+    public void SendMessageUp(Message message) {
+        Messenger messenger = CreateMessenger();
+        messenger.SetMessage(message);
+        messenger.SetDestination(network.parentNetwork, network.parentNetwork.node.transform.position);
     }
 
     /** ~~~~~~~ PLAYER INTERACTION ~~~~~~~ **/

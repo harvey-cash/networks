@@ -2,42 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Message : MonoBehaviour {
-
-    /** ~~~~~~~ MOVEMENT ~~~~~~~ **/
-    /** Move to where we need you to go!
+public class Message {
+    /** Messages are the most important aspect of the game
+     * The player can only learn, see, find out anything by receiving a message
+     * Messages collect data about their surroundings on creation,
+     * and relay the data directly to the destination Network.
+     * 
+     * It is a network's job to forward messages onwards towards the capital.
+     * By the time messages arrive, they may well present out of date data.
      */
-    private float speed = 2f;
-    private float minDistance = 0.1f;
-    private Network network;
-    private Vector3 destination;
 
-	public void SetDestination(Network network, Vector3 destination) {
-        this.network = network;
-        this.destination = destination;
-    }
+    public Collider[] messageData;
 
-    // Move toward destination until within minDistance
-    // Then deposit message and self destruct
-    public void MoveToDestination() {
-        if (MoveTowardDestination()) {
-            Destroy(this.gameObject);
-        }
+    public Message(Collider[] messageData) {
+        this.messageData = messageData;
     }
-
-    // Make progress towards the destination
-    // Returns true once close enough
-    public bool MoveTowardDestination() {
-        Vector3 forward = destination - transform.position;
-        if (Vector3.Magnitude(forward) < minDistance) {
-            return true;
-        }        
-        transform.position += Vector3.Normalize(forward) * speed * Time.deltaTime;
-        return false;
-    }
-	
-	// Update is called once per frame
-	void Update () {
-        MoveToDestination();
-	}
+    
 }
