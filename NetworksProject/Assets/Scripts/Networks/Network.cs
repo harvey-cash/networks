@@ -49,8 +49,12 @@ public class Network {
         }
     }
 
+    // Called by the root ONLY!
     public void VisualiseMessage(Message message) {
-        Debug.Log("RECEIVED MESSAGE!");
+        Ghost[] ghosts = message.ghosts;
+        for (int i = 0; i < ghosts.Length; i++) {
+            ghosts[i].View();
+        }
     }
 
     /** ~~~~~~~ BEING CREATED ~~~~~~~ **/

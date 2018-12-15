@@ -26,12 +26,9 @@ public class Node : MonoBehaviour {
         Vector3.left,
         Vector3.left + Vector3.forward
     };
-
+    
     // Called by own network on its creation
     public void Place() {
-        // Undo OnTop-ness
-        gameObject.layer = LayerMask.NameToLayer("Default");
-
         Vector3 position = Map.SnapToGrid(gameObject.transform.position);
         bool success = Map.SetWorldCells(
             gameObject.transform.position,
@@ -42,6 +39,12 @@ public class Node : MonoBehaviour {
 
         if (success) {
             gameObject.GetComponent<Renderer>().material.color = Color.white;
+
+            // We don't need to be able to ghostify the root node, but
+            // we do need to ghostify all else!
+            if (!network.root) {
+                gameObject.layer = LayerMask.NameToLayer("Viewable");
+            }
         }
         else {
             throw new System.Exception("Node Place fucked up!");

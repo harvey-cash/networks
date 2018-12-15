@@ -31,14 +31,22 @@ public class Messenger : MonoBehaviour {
         gameObject.layer = LayerMask.NameToLayer("Messages");
     }
 
-    // What objects are visible?
+    // Get all the objects within the visibility radius (need to have a collider!)
+    // and create ghost copies of them.
     public void CollectData() {
         Collider[] visibleColliders = Physics.OverlapSphere(
             gameObject.transform.position,
             visibilityRadius,
-            LayerMask.GetMask(new string[] { "Default" })
+            LayerMask.GetMask(new string[] { "Viewable" })
         );
-        SetMessage(new Message(visibleColliders));
+        Ghost[] ghosts = new Ghost[visibleColliders.Length];
+
+        for (int i = 0; i < visibleColliders.Length; i++) {
+            GameObject ghostObject = Instantiate(visibleColliders[i].gameObject, null);
+            ghosts[i] = ghostObject.AddComponent<Ghost>();
+        }
+
+        SetMessage(new Message(ghosts));
     }
 
     /** ~~~~~~~ MOVEMENT ~~~~~~~ **/

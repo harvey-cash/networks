@@ -12,10 +12,10 @@ public class Message {
      * By the time messages arrive, they may well present out of date data.
      */
 
-    public Collider[] messageData;
+    public Ghost[] ghosts;
 
-    public Message(Collider[] messageData) {
-        this.messageData = messageData;
+    public Message(Ghost[] ghosts) {
+        this.ghosts = ghosts;
     }
     
 }

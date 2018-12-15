@@ -11,6 +11,7 @@ public class Root : MonoBehaviour {
         network = new Network(null, null, childNode, true);
 
         // Placed by default
+        childNode.SetNetwork(network);
         childNode.Place();
     }
 }

@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\CameraControl.cs" />
     <Compile Include="Assets\Scripts\Map\Map.cs" />
     <Compile Include="Assets\Scripts\Maths.cs" />
+    <Compile Include="Assets\Scripts\Networks\Ghost.cs" />
     <Compile Include="Assets\Scripts\Networks\Link.cs" />
     <Compile Include="Assets\Scripts\Networks\Message.cs" />
     <Compile Include="Assets\Scripts\Networks\Messenger.cs" />
