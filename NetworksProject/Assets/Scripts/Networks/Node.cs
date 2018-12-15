@@ -144,7 +144,16 @@ public class Node : Viewable {
         messengerObject.transform.position = gameObject.transform.position;
         messengerObject.transform.localScale = messageScale;
         messengerObject.name = "Messenger";
-        return messengerObject.AddComponent<Messenger>();
+
+        // Material!
+        Material mat = (Material)Resources.Load("Materials/Messenger");
+        messengerObject.GetComponent<Renderer>().material = mat;
+        messengerObject.GetComponent<Renderer>().enabled = false;
+
+        Messenger messenger = messengerObject.AddComponent<Messenger>();
+        messenger.SetColor(mat.color);
+
+        return messenger;
     }
 
     // Create a messenger object which moves towards the parentNetwork's node

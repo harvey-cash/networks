@@ -17,7 +17,7 @@ public class Messenger : MonoBehaviour {
     /** ~~~~~~~ DATA COLLECTION ~~~~~~~ **/
     /** What objects are in the area?
      */
-    public float visibilityRadius = 5f;
+    public float visibilityRadius = 10f;
     public Message message;
 
     // Called when a new messenger is created by a node
@@ -59,6 +59,12 @@ public class Messenger : MonoBehaviour {
     private float minDistance = 0.1f;
     private Vector3 destination;
 
+    private Color color;
+    public void SetColor(Color color) {
+        this.color = color;
+    }
+
+    // Called on creation
     public void SetDestination(Network network, Vector3 destination) {
         this.targetNetwork = network;
         this.destination = destination;
@@ -77,6 +83,17 @@ public class Messenger : MonoBehaviour {
     // Returns true once close enough
     public bool MoveTowardDestination() {
         Vector3 forward = destination - transform.position;
+        float distance = Vector3.Magnitude(forward);
+
+        // Messengers become visible as they approach the root
+        if (targetNetwork.root && distance < visibilityRadius) {
+            GetComponent<Renderer>().enabled = true;
+
+            float u = 1 - (distance / visibilityRadius);            
+            Color newColor = new Color(color.r, color.g, color.b, u);
+            GetComponent<Renderer>().material.color = newColor;
+        }
+
         if (Vector3.Magnitude(forward) < minDistance) {
             return true;
         }
