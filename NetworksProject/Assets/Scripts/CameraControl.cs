@@ -4,16 +4,37 @@ using UnityEngine;
 
 public class CameraControl : MonoBehaviour {
 
+    bool canMove = true;
     Vector3 lastMousePos;
+    float scrollMultiplier = 4;
 
     // Middle mouse camera controls
     private void Update() {
+        if (canMove) {
+            ControlCamera();
+        }        
+    }
+
+    private void ControlCamera() {
         if (Input.GetMouseButtonDown(2)) {
             OnMiddleMouseDown();
         }
         if (Input.GetMouseButton(2)) {
             OnMiddleMouseDrag();
         }
+        ControlZoom();
+    }
+
+    private void ControlZoom() {
+        var deltaScroll = Input.GetAxis("Mouse ScrollWheel");
+
+        // Perspective zoom is movement!
+        if (!GetComponent<Camera>().orthographic) {
+            gameObject.transform.position += gameObject.transform.forward * deltaScroll;
+        }
+        else {
+            GetComponent<Camera>().orthographicSize -= deltaScroll * scrollMultiplier;
+        }        
     }
 
     // Called once when middle mouse is pressed down
@@ -22,8 +43,16 @@ public class CameraControl : MonoBehaviour {
     }
 
     // Called each frame mouse is dragged
+    // ~~~~~~~~~~~ DAMN ROTATIONS ~~~~~~~~~~~~
     private void OnMiddleMouseDrag() {
-        gameObject.transform.position += lastMousePos - MouseToWorldCoords();
+        Vector3 diff = lastMousePos - MouseToWorldCoords();
+        diff = new Vector3(
+            diff.x,
+            0,
+            diff.z * (1 / Mathf.Cos(gameObject.transform.eulerAngles.x))
+        );
+        gameObject.transform.position += diff;
+
         lastMousePos = MouseToWorldCoords();
     }
 
