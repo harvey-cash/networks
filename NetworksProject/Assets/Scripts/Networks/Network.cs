@@ -42,7 +42,8 @@ public class Network {
 
     // called once on creation
     public void Placed() {
-        Debug.Log("Placed!");
+        // Take up the available grid spaces
+        node.Place();
 
         // we only make the link a child of the node on being placed
         // as otherwise parent-child correlation conflicts with setting link position
@@ -53,8 +54,8 @@ public class Network {
     }
 
     /** ~~~~~~~ CREATING SUB NETWORKS ~~~~~~~ **/
-    Network tempNetwork;
-    Vector3 tempLinkScaleXY = new Vector3(0.1f, 0.1f, 1f);
+    private Network tempNetwork;
+    private Vector3 tempLinkScaleXY = new Vector3(0.1f, 0.1f, 1f);
    
     // Called by node once on start of mouse drag
     public void CreateChildNetwork() {
@@ -65,26 +66,45 @@ public class Network {
         GameObject childNodeObject = GameObject.CreatePrimitive(PrimitiveType.Cube);        
         Node childNode = childNodeObject.AddComponent<Node>();
         childNodeObject.name = "Node";
+        childNode.Created();
 
         tempNetwork = new Network(this, childLink, childNode);
     }
 
     // Called by node every frame during mouse drag
     public void PositionNewNetwork() {
+        // SNAP TO GRID COORDS
         Vector3 position = CameraControl.MousePosToWorldPos();
 
-        Vector3 diff = position - node.transform.position;
+        if (Settings.SNAP_TO_GRID) {
+            position = Map.SnapToGrid(position);
+        }
+
+        Vector3 offset = new Vector3(0, node.scale.y * -0.5f, 0);
+        Vector3 diff = position - (node.transform.position + offset);
         Vector3 scale = new Vector3(
             tempLinkScaleXY.x, 
             tempLinkScaleXY.y,
             Vector3.Magnitude(diff)
         );
-        // Links point toward the parentNetwork Node
-        Quaternion rotation = Quaternion.LookRotation(-diff, Vector3.up);
 
-        // link is placed halfway between new node and current node
+        // Highlight accordingly
+        tempNetwork.node.CanBePlaced();
+
+        // Links point toward the parentNetwork Node
+        // Check for zero difference to avoid "Look Rotation Viewing Vector is Zero" logs
+        Quaternion rotation;
+        if (diff == Vector3.zero) {
+            rotation = Quaternion.Euler(Vector3.zero);
+        }
+        else {
+            rotation = Quaternion.LookRotation(-diff, Vector3.up);
+        }
+
+        // link is placed halfway between new node and current node's base
         tempNetwork.link.SetTransform((position + node.transform.position) * 0.5f, scale, rotation);
-        tempNetwork.node.transform.position = position;
+        // Position adjusted by node
+        tempNetwork.node.Placing(position);
     }
 
     // Temporary Network becomes an actual functioning Child Network

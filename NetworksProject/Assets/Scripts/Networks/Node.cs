@@ -9,6 +9,78 @@ public class Node : MonoBehaviour {
         this.network = network;
     }
 
+    /** ~~~~~~~ PHYSICAL SIZE ETC ~~~~~~~ **/
+    /** Every so often, outposts send messages regarding
+     *  their status and surroundings.
+     */
+    public Vector3 scale = new Vector3(1, 0.5f, 1);
+
+    // private int sizeX = 1, sizeZ = 1;
+    // ~~~ All Nodes assumed to be 1*1 currently ~~~ //
+    // Called by own network on its creation
+    public void Place() {
+        // Undo OnTop-ness
+        gameObject.layer = LayerMask.NameToLayer("Default");
+
+        Vector3 position = Map.SnapToGrid(gameObject.transform.position);
+        bool success = Map.SetWorldCell(
+            gameObject.transform.position,
+            Map.SPACE_LAYER,
+            Map.SPACE_FULL
+        );
+
+        if (success) {
+            gameObject.GetComponent<Renderer>().material.color = Color.white;
+        }
+        else {
+            throw new System.Exception("Node Place fucked up!");
+        }
+    }
+
+    // Called on destruction / movement?
+    // ~~~~ DO NOT MOVE NODES WITHOUT UPDATING GRID ELSEWHERE ~~~~~ //
+    public void UnPlace() {
+        bool success = Map.SetWorldCell(
+            gameObject.transform.position, 
+            Map.SPACE_LAYER, 
+            Map.SPACE_EMPTY
+        );
+
+        if (!success) {
+            throw new System.Exception("Node UnPlace fucked up!");
+        }
+    }
+
+    // Return whether can be placed or not
+    // Highlight accordingly whilst being placed
+    // Called by network when being placed
+    public bool CanBePlaced() {
+        int full = Map.GetWorldCell(gameObject.transform.position, Map.SPACE_LAYER);
+
+        if (full == Map.SPACE_EMPTY) {
+            gameObject.GetComponent<Renderer>().material.color = Color.green;
+            return true;
+        }
+        else if (full == Map.SPACE_FULL) {
+            gameObject.GetComponent<Renderer>().material.color = Color.red;
+            return false;
+        }
+        else {
+            throw new System.Exception("Map fucked up!");
+        }
+    }
+
+    // Called once when tempNetwork is first created
+    public void Created() {
+        gameObject.layer = LayerMask.NameToLayer("OnTop");
+        gameObject.transform.localScale = scale;
+    }
+
+    // Called every frame by Network during mouse drag
+    public void Placing(Vector3 pos) {
+        gameObject.transform.position = pos + (new Vector3(0, scale.y / 2f, 0));
+    }
+
     /** ~~~~~~~ COMMUNICATIONS ~~~~~~~ **/
     /** Every so often, outposts send messages regarding
      *  their status and surroundings.
@@ -102,7 +174,7 @@ public class Node : MonoBehaviour {
             }
 
             // Called every frame from now on until MouseUp
-            network.PositionNewNetwork();            
+            network.PositionNewNetwork();
         }
     }
 

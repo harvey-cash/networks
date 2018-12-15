@@ -9,5 +9,8 @@ public class Root : MonoBehaviour {
     private void Start() {
         Node childNode = gameObject.AddComponent<Node>();
         network = new Network(null, null, childNode);
+
+        // Placed by default
+        childNode.Place();
     }
 }
