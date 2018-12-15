@@ -35,6 +35,8 @@ public static class Map {
         }
     }
 
+    /** ~~~~~~~ GETTING / SETTING CELLS ~~~~~~~ **/
+
     // Arrays can only be positive, but the world has negative co-ords!
     // Shift by half array size
     // Return true if successful (within bounds)
@@ -49,6 +51,23 @@ public static class Map {
         }
     }
 
+    // Do multiple cells!
+    public static bool SetWorldCells(Vector3 worldPos, Vector3[] offsets, int layer, int value) {
+        // Check all the spaces around the center, if any are out of bounds then that's it
+        for (int i = 0; i < offsets.Length; i++) {
+            Vector3 cell = WorldCoordsToCell(worldPos + offsets[i]);
+            if (!WithinBounds(cell, layer)) {
+                return false;
+            }
+        }
+
+        // If we get this far, we're all good to set values
+        for (int i = 0; i < offsets.Length; i++) {
+            SetWorldCell(worldPos + offsets[i], layer, value);
+        }
+        return true;
+    }
+
     // Access the grid cell at the given world coords
     // Throws error (for now) if out of bounds
     public static int GetWorldCell(Vector3 worldPos, int layer) {
@@ -60,6 +79,17 @@ public static class Map {
             throw new System.Exception("Out of bounds!");
             //return SPACE_FULL;
         }        
+    }
+
+    // Access multiple at once!
+    public static int[] GetWorldCells(Vector3 worldPos, Vector3[] offsets, int layer) {
+        int[] cells = new int[offsets.Length];
+
+        for (int i = 0; i < offsets.Length; i++) {
+            cells[i] = GetWorldCell(worldPos + offsets[i], layer);
+        }
+
+        return cells;
     }
 
     // Simply rounds to unit spacing

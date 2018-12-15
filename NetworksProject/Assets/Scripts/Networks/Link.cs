@@ -15,4 +15,9 @@ public class Link : MonoBehaviour {
         transform.rotation = rotation;
     }
 
+    // Called on Cancel by network
+    public void Destroy() {
+        Destroy(this.gameObject);
+    }
+
 }

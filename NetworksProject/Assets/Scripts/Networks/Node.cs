@@ -14,6 +14,18 @@ public class Node : MonoBehaviour {
      *  their status and surroundings.
      */
     public Vector3 scale = new Vector3(1, 0.5f, 1);
+    // Relative to object position, which unit cells get filled?
+    public Vector3[] fillSpaces = new Vector3[] {
+        Vector3.zero,
+        Vector3.forward,
+        Vector3.forward + Vector3.right,
+        Vector3.right,
+        Vector3.right + Vector3.back,
+        Vector3.back,
+        Vector3.back + Vector3.left,
+        Vector3.left,
+        Vector3.left + Vector3.forward
+    };
 
     // private int sizeX = 1, sizeZ = 1;
     // ~~~ All Nodes assumed to be 1*1 currently ~~~ //
@@ -23,8 +35,9 @@ public class Node : MonoBehaviour {
         gameObject.layer = LayerMask.NameToLayer("Default");
 
         Vector3 position = Map.SnapToGrid(gameObject.transform.position);
-        bool success = Map.SetWorldCell(
+        bool success = Map.SetWorldCells(
             gameObject.transform.position,
+            fillSpaces,
             Map.SPACE_LAYER,
             Map.SPACE_FULL
         );
@@ -40,8 +53,9 @@ public class Node : MonoBehaviour {
     // Called on destruction / movement?
     // ~~~~ DO NOT MOVE NODES WITHOUT UPDATING GRID ELSEWHERE ~~~~~ //
     public void UnPlace() {
-        bool success = Map.SetWorldCell(
+        bool success = Map.SetWorldCells(
             gameObject.transform.position, 
+            fillSpaces,
             Map.SPACE_LAYER, 
             Map.SPACE_EMPTY
         );
@@ -55,18 +69,27 @@ public class Node : MonoBehaviour {
     // Highlight accordingly whilst being placed
     // Called by network when being placed
     public bool CanBePlaced() {
-        int full = Map.GetWorldCell(gameObject.transform.position, Map.SPACE_LAYER);
+        int[] cells = Map.GetWorldCells(
+            gameObject.transform.position, 
+            fillSpaces,
+            Map.SPACE_LAYER
+        );
 
-        if (full == Map.SPACE_EMPTY) {
+        // Check through the values. If any are occupied, can't place!
+        bool occupied = false;
+        for (int i = 0; i < cells.Length; i++) {
+            if (cells[i] == Map.SPACE_FULL) {
+                occupied = true;
+            }
+        }
+
+        if (!occupied) {
             gameObject.GetComponent<Renderer>().material.color = Color.green;
             return true;
         }
-        else if (full == Map.SPACE_FULL) {
+        else {
             gameObject.GetComponent<Renderer>().material.color = Color.red;
             return false;
-        }
-        else {
-            throw new System.Exception("Map fucked up!");
         }
     }
 
@@ -131,6 +154,11 @@ public class Node : MonoBehaviour {
     // Called once on mouse up, if dragged
     private void NewNetwork() {
         network.FinishChildNetwork();
+    }
+
+    // Called on Cancel by network
+    public void Destroy() {
+        Destroy(this.gameObject);
     }
 
     /** ~~~~~~~ MOUSE INTERACTION ~~~~~~~ **/

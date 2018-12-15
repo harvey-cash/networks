@@ -54,8 +54,22 @@ public class Network {
     }
 
     /** ~~~~~~~ CREATING SUB NETWORKS ~~~~~~~ **/
+    /** On drag off of a node, a tempNetwork is made
+     *  On mouse up, it becomes placed and added as a child network
+     */
     private Network tempNetwork;
     private Vector3 tempLinkScaleXY = new Vector3(0.1f, 0.1f, 1f);
+
+    // Check all the criteria of becoming a sub network!
+    public bool CanBePlaced() {
+        return node.CanBePlaced();
+    }
+
+    // This is a tempNetwork! Kill it dead!
+    public void Cancel() {
+        node.Destroy();
+        link.Destroy();
+    }
    
     // Called by node once on start of mouse drag
     public void CreateChildNetwork() {
@@ -110,8 +124,13 @@ public class Network {
     // Temporary Network becomes an actual functioning Child Network
     // Called by node once at the end of mouse drag
     public void FinishChildNetwork() {
-        children.Add(tempNetwork);
-        tempNetwork.Placed();
+        if (!tempNetwork.CanBePlaced()) {
+            tempNetwork.Cancel();
+        }
+        else {
+            children.Add(tempNetwork);
+            tempNetwork.Placed();
+        }
         tempNetwork = null;
     }
 
