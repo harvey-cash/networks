@@ -4,25 +4,37 @@ using UnityEngine;
 
 public class CameraControl : MonoBehaviour {
 
-    bool canMove = true;
-    Vector3 lastMousePos;
-    float scrollMultiplier = 4;
+    private bool canMove = true;
+    private Vector3 lastMousePos;
+    private float scrollMultiplier = 4;
+    private float slideMultiplier = 0.2f;
+
+    private float orthSizeMin = 1, orthSizeMax = 12;
 
     // Middle mouse camera controls
     private void Update() {
         if (canMove) {
             ControlCamera();
+            ControlZoom();
         }        
     }
 
+    // Called each frame, if canMove
     private void ControlCamera() {
+        // Button index two is mouse wheel
         if (Input.GetMouseButtonDown(2)) {
             OnMiddleMouseDown();
         }
         if (Input.GetMouseButton(2)) {
             OnMiddleMouseDrag();
         }
-        ControlZoom();
+
+        // Cancel out vertical movement
+        Vector3 x = Input.GetAxis("Horizontal") * gameObject.transform.right;
+        Vector3 z = Input.GetAxis("Vertical") * gameObject.transform.up;
+        Vector3 move = (x + z) * slideMultiplier;
+        gameObject.transform.position += new Vector3(move.x, 0, move.z);
+        
     }
 
     private void ControlZoom() {
@@ -34,26 +46,28 @@ public class CameraControl : MonoBehaviour {
         }
         else {
             GetComponent<Camera>().orthographicSize -= deltaScroll * scrollMultiplier;
+
+            // As orthographic size increases, the view plane clips the ground eventually
+            if (GetComponent<Camera>().orthographicSize < orthSizeMin) {
+                GetComponent<Camera>().orthographicSize = orthSizeMin;
+            }
+            if (GetComponent<Camera>().orthographicSize > orthSizeMax) {
+                GetComponent<Camera>().orthographicSize = orthSizeMax;
+            }
         }        
     }
 
     // Called once when middle mouse is pressed down
     private void OnMiddleMouseDown() {
-        lastMousePos = MouseToWorldCoords();
+        lastMousePos = MousePosToWorldPos();
     }
 
     // Called each frame mouse is dragged
-    // ~~~~~~~~~~~ DAMN ROTATIONS ~~~~~~~~~~~~
     private void OnMiddleMouseDrag() {
-        Vector3 diff = lastMousePos - MouseToWorldCoords();
-        diff = new Vector3(
-            diff.x,
-            0,
-            diff.z * (1 / Mathf.Cos(gameObject.transform.eulerAngles.x))
-        );
+        Vector3 diff = lastMousePos - MousePosToWorldPos();
         gameObject.transform.position += diff;
 
-        lastMousePos = MouseToWorldCoords();
+        lastMousePos = MousePosToWorldPos();
     }
 
     // Used by Network to raycast to ground
@@ -64,5 +78,20 @@ public class CameraControl : MonoBehaviour {
             0
         );
         return Camera.main.ScreenToWorldPoint(mousePos);
+    }
+
+    // Convert mouse on screen to position in space
+    // Casted down to the terrain!
+    public static Vector3 MousePosToWorldPos() {
+        Vector3 worldPos = MouseToWorldCoords();
+
+        // Bit shift the index of the layer (9) to get a bit mask
+        int layerMask = 1 << 9;
+
+        RaycastHit hit;
+        // ~~~~~ Using Camera transform forward here breaks on Perspective Cameras ~~~~~ //
+        Physics.Raycast(worldPos, Camera.main.transform.forward, out hit, Mathf.Infinity, layerMask);
+
+        return hit.point;
     }
 }

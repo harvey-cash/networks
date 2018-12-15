@@ -71,7 +71,7 @@ public class Network {
 
     // Called by node every frame during mouse drag
     public void PositionNewNetwork() {
-        Vector3 position = MousePosToWorldPos();
+        Vector3 position = CameraControl.MousePosToWorldPos();
 
         Vector3 diff = position - node.transform.position;
         Vector3 scale = new Vector3(
@@ -93,21 +93,6 @@ public class Network {
         children.Add(tempNetwork);
         tempNetwork.Placed();
         tempNetwork = null;
-    }
-
-    // Convert mouse on screen to position in space
-    // Casted down to the terrain!
-    private Vector3 MousePosToWorldPos() {
-        Vector3 worldPos = CameraControl.MouseToWorldCoords();
-
-        // Bit shift the index of the layer (9) to get a bit mask
-        int layerMask = 1 << 9;
-
-        RaycastHit hit;
-        // ~~~~~ Using Camera transform forward here breaks on Perspective Cameras ~~~~~ //
-        Physics.Raycast(worldPos, Camera.main.transform.forward, out hit, Mathf.Infinity, layerMask);
-
-        return hit.point;
     }
 
 }
